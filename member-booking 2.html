@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>REAL WORKOUT 元住吉店 — 会員予約</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black:   #0a0a0a;
+    --dark2:   #1a1a1a;
+    --dark3:   #222222;
+    --border:  #2e2e2e;
+    --border2: #3a3a3a;
+    --muted:   #aaaaaa;   /* サブテキスト */
+    --body:    #e8e4de;   /* 本文テキスト — はっきり見える */
+    --bright:  #f5f2ee;   /* 見出し・強調テキスト */
+    --accent:  #c8a96e;
+    --accent2: #a88a52;
+    --green:   #5ec98a;
+    --red:     #e05444;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html {
+    background: #0a0a0a;
+  }
+  body {
+    background: #0a0a0a;
+    color: var(--body);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 400;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── HEADER ── */
+  .site-header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 24px;
+    background: rgba(10,10,10,0.97);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(8px);
+  }
+  .back-btn {
+    color: var(--body); font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px; letter-spacing: 0.08em; cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    background: none; border: none; padding: 0; transition: color 0.2s; min-width: 48px;
+  }
+  .back-btn:hover { color: var(--bright); }
+  .back-btn.hidden { visibility: hidden; pointer-events: none; }
+  .site-name { text-align: center; flex: 1; }
+  .site-name-main {
+    font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700;
+    letter-spacing: 0.18em; color: var(--bright); display: block; text-transform: uppercase;
+  }
+  .site-name-sub {
+    font-size: 10px; font-weight: 400; letter-spacing: 0.12em;
+    color: var(--muted); display: block; margin-top: 2px;
+  }
+  .header-badge {
+    font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.15em; color: var(--black); background: var(--accent);
+    padding: 4px 10px; border-radius: 2px; text-transform: uppercase; min-width: 48px; text-align: center;
+  }
+
+  /* ── LAYOUT ── */
+  .main { padding-top: 72px; min-height: 100vh; display: flex; flex-direction: column; background: #0a0a0a; }
+  .screen { display: none; flex: 1; flex-direction: column; animation: fadeUp 0.3s ease both; background: #0a0a0a; }
+  .screen.active { display: flex; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .step-label {
+    font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600;
+    letter-spacing: 0.24em; color: var(--accent); text-transform: uppercase; padding: 28px 24px 0;
+  }
+  .page-title {
+    font-family: 'Barlow Condensed', sans-serif; font-size: 28px; font-weight: 700;
+    letter-spacing: 0.06em; color: var(--bright); padding: 6px 24px 0; text-transform: uppercase;
+  }
+  .content { padding: 20px 24px 100px; flex: 1; }
+
+  /* ── LOADING ── */
+  .loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 24px; gap: 16px; }
+  .spinner { width: 32px; height: 32px; border: 2px solid var(--border2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 13px; font-weight: 400; color: var(--body); letter-spacing: 0.08em; }
+
+  /* ── ERROR ── */
+  .error-state { background: rgba(224,84,68,0.1); border: 1px solid rgba(224,84,68,0.35); border-radius: 4px; padding: 16px 18px; margin-bottom: 20px; font-size: 13px; color: #f09080; line-height: 1.8; }
+
+  /* ── WEEK NAV ── */
+  .week-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .week-label { font-family: 'Barlow Condensed', sans-serif; font-size: 17px; font-weight: 600; letter-spacing: 0.08em; color: var(--bright); }
+  .week-btn {
+    background: var(--dark2); border: 1px solid var(--border2); border-radius: 4px;
+    color: var(--body); width: 36px; height: 36px; cursor: pointer; font-size: 18px;
+    display: flex; align-items: center; justify-content: center; transition: border-color 0.2s, color 0.2s;
+  }
+  .week-btn:hover { border-color: var(--accent); color: var(--bright); }
+  .week-btn:disabled { opacity: 0.25; cursor: default; }
+
+  /* ── SLOT LIST ── */
+  .slot-day { margin-bottom: 24px; }
+  .slot-day-header {
+    font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.18em; color: var(--accent); text-transform: uppercase;
+    padding: 8px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 10px;
+    display: flex; align-items: baseline; gap: 10px;
+  }
+  .day-date { font-family: 'Noto Sans JP', sans-serif; font-size: 14px; font-weight: 500; color: var(--bright); letter-spacing: 0.04em; text-transform: none; }
+  .slot-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .slot-item {
+    background: var(--dark2); border: 1px solid var(--border2); border-radius: 4px;
+    padding: 14px 16px; display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer; transition: border-color 0.2s, background 0.2s;
+  }
+  .slot-item:hover:not(.full) { border-color: var(--accent); background: var(--dark3); }
+  .slot-item.selected { border-color: var(--accent); background: var(--dark3); }
+  .slot-item.full { opacity: 0.45; cursor: default; pointer-events: none; }
+
+  .slot-time { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: 0.06em; color: var(--bright); }
+  .slot-trainer { font-size: 12px; font-weight: 500; color: var(--body); letter-spacing: 0.05em; margin-top: 3px; }
+
+  .slot-right { display: flex; align-items: center; gap: 10px; }
+  .slot-status { font-size: 24px; font-weight: 700; line-height: 1; }
+  .slot-status.open { color: var(--green); }
+  .slot-status.full { color: var(--muted); }
+
+  .slot-check {
+    width: 20px; height: 20px; border: 1px solid var(--border2); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s, border-color 0.2s; flex-shrink: 0;
+  }
+  .slot-item.selected .slot-check { background: var(--accent); border-color: var(--accent); }
+  .slot-item.selected .slot-check::after { content: ''; width: 6px; height: 6px; background: var(--black); border-radius: 50%; }
+
+  .no-slots { font-size: 13px; font-weight: 400; color: var(--muted); letter-spacing: 0.05em; padding: 12px 0; }
+
+  /* ── FORM ── */
+  .form-group { margin-bottom: 20px; }
+  .form-label {
+    font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.22em; color: var(--accent); text-transform: uppercase; display: block; margin-bottom: 8px;
+  }
+  .form-input {
+    width: 100%; background: var(--dark2); border: 1px solid var(--border2); border-radius: 4px;
+    padding: 14px 16px; color: var(--bright); font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px; font-weight: 400; outline: none; transition: border-color 0.2s; appearance: none;
+  }
+  .form-input:focus { border-color: var(--accent); }
+  .form-input::placeholder { color: var(--muted); }
+  textarea.form-input { resize: vertical; min-height: 80px; line-height: 1.7; }
+
+  /* ── CONFIRM ── */
+  .confirm-rows { background: var(--dark2); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 20px; }
+  .confirm-row { display: flex; align-items: flex-start; border-bottom: 1px solid var(--border); padding: 14px 18px; }
+  .confirm-row:last-child { border-bottom: none; }
+  .confirm-row-key { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.18em; color: var(--accent); text-transform: uppercase; width: 72px; flex-shrink: 0; padding-top: 2px; }
+  .confirm-row-val { font-size: 14px; font-weight: 500; color: var(--bright); letter-spacing: 0.04em; line-height: 1.6; }
+  .confirm-note { font-size: 12px; font-weight: 400; color: var(--muted); letter-spacing: 0.04em; line-height: 1.9; text-align: center; margin-bottom: 24px; }
+
+  /* ── SETUP NOTICE ── */
+  .setup-notice {
+    background: #161410;
+    border: 1px solid rgba(200,169,110,0.3);
+    border-radius: 4px; padding: 14px 16px; margin-bottom: 20px;
+    font-size: 12px; font-weight: 400; color: var(--body); line-height: 1.9; letter-spacing: 0.03em;
+  }
+  .setup-notice strong { color: var(--accent); }
+
+  /* ── FOOTER ── */
+  .footer-bar { position: fixed; bottom: 0; left: 0; right: 0; padding: 14px 24px 24px; background: linear-gradient(to top, var(--black) 65%, transparent); z-index: 50; }
+  .btn-next {
+    width: 100%; background: var(--accent); color: var(--black); border: none; border-radius: 4px;
+    padding: 17px; font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700;
+    letter-spacing: 0.22em; text-transform: uppercase; cursor: pointer; transition: background 0.2s, opacity 0.2s;
+  }
+  .btn-next:hover { background: var(--accent2); }
+  .btn-next:disabled { opacity: 0.25; cursor: default; }
+  .btn-confirm {
+    width: 100%; background: transparent; color: var(--accent); border: 1px solid var(--accent);
+    border-radius: 4px; padding: 17px; font-family: 'Barlow Condensed', sans-serif; font-size: 14px;
+    font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; cursor: pointer;
+    transition: background 0.2s, color 0.2s; display: block; text-align: center;
+  }
+  .btn-confirm:hover { background: var(--accent); color: var(--black); }
+
+  /* ── COMPLETE ── */
+  #screen-complete { justify-content: center; align-items: center; text-align: center; padding: 48px 32px; }
+  .complete-icon { width: 64px; height: 64px; border: 1px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 28px; }
+  .complete-check { font-size: 28px; color: var(--accent); }
+  .complete-title { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 0.12em; color: var(--bright); text-transform: uppercase; margin-bottom: 20px; }
+  .complete-message { font-size: 14px; font-weight: 400; color: var(--body); letter-spacing: 0.05em; line-height: 2.4; }
+  .complete-brand { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.22em; color: var(--muted); text-transform: uppercase; margin-top: 40px; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <button class="back-btn hidden" id="backBtn" onclick="goBack()">&#8592;</button>
+  <div class="site-name">
+    <span class="site-name-main">Real Workout</span>
+    <span class="site-name-sub">元住吉店</span>
+  </div>
+  <div class="header-badge">Member</div>
+</header>
+
+<main class="main">
+
+  <!-- Step 01: 空き枠選択 -->
+  <div class="screen active" id="screen-slots">
+    <div class="step-label">Step 01 — Available Slots</div>
+    <div class="page-title">空き枠を選ぶ</div>
+    <div class="content">
+
+      <div class="setup-notice" id="setupNotice">
+        <strong>⚙ セットアップ中</strong><br>
+        Google Apps ScriptのURLを設定するとリアルタイムで空き枠が表示されます。<br>
+        下記はデモ表示です。設定方法は <code>gas-setup.md</code> をご確認ください。
+      </div>
+
+      <div class="week-nav">
+        <button class="week-btn" id="prevWeekBtn" onclick="changeWeek(-1)" disabled>‹</button>
+        <div class="week-label" id="weekLabel">—</div>
+        <button class="week-btn" onclick="changeWeek(1)">›</button>
+      </div>
+
+      <div id="slotContainer">
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <div class="loading-text">空き枠を取得中...</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bar">
+      <button class="btn-next" id="btnSlot" onclick="goTo('screen-info')" disabled>次 へ</button>
+    </div>
+  </div>
+
+  <!-- Step 02: お客様情報 -->
+  <div class="screen" id="screen-info">
+    <div class="step-label">Step 02 — Info</div>
+    <div class="page-title">お客様情報</div>
+    <div class="content">
+      <div class="form-group">
+        <label class="form-label">Name — お名前</label>
+        <input class="form-input" type="text" id="member-name" placeholder="山田 太郎" oninput="validateInfo()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone — 電話番号</label>
+        <input class="form-input" type="tel" id="member-phone" placeholder="090-0000-0000" oninput="validateInfo()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Note — ご要望（任意）</label>
+        <textarea class="form-input" id="member-note" placeholder="体調・ご要望など"></textarea>
+      </div>
+    </div>
+    <div class="footer-bar">
+      <button class="btn-next" id="btnInfo" onclick="goTo('screen-confirm')" disabled>次 へ</button>
+    </div>
+  </div>
+
+  <!-- Step 03: 確認 -->
+  <div class="screen" id="screen-confirm">
+    <div class="step-label">Step 03 — Confirm</div>
+    <div class="page-title">ご確認</div>
+    <div class="content">
+      <div class="confirm-rows">
+        <div class="confirm-row">
+          <div class="confirm-row-key">Date</div>
+          <div class="confirm-row-val" id="confirm-date">—</div>
+        </div>
+        <div class="confirm-row">
+          <div class="confirm-row-key">Time</div>
+          <div class="confirm-row-val" id="confirm-time">—</div>
+        </div>
+        <div class="confirm-row">
+          <div class="confirm-row-key">Trainer</div>
+          <div class="confirm-row-val" id="confirm-trainer">—</div>
+        </div>
+        <div class="confirm-row">
+          <div class="confirm-row-key">Name</div>
+          <div class="confirm-row-val" id="confirm-name">—</div>
+        </div>
+        <div class="confirm-row">
+          <div class="confirm-row-key">Phone</div>
+          <div class="confirm-row-val" id="confirm-phone">—</div>
+        </div>
+      </div>
+      <p class="confirm-note">
+        予約確定後、担当トレーナーよりご確認の連絡をいたします。<br>
+        キャンセルは前日21時までにご連絡ください。
+      </p>
+      <button class="btn-confirm" onclick="submitBooking()">予 約 を 確 定 す る</button>
+    </div>
+  </div>
+
+  <!-- Complete -->
+  <div class="screen" id="screen-complete">
+    <div class="complete-icon"><span class="complete-check">✓</span></div>
+    <div class="complete-title">予約を受け付けました</div>
+    <div class="complete-message" id="completeMessage">
+      担当トレーナーより<br>ご連絡いたします。<br><br>またお会いしましょう。
+    </div>
+    <div class="complete-brand">Real Workout 元住吉店</div>
+  </div>
+
+</main>
+
+<script>
+  // ═══════════════════════════════════════════════
+  // ★ 設定エリア — ここだけ変更すればOK
+  // ═══════════════════════════════════════════════
+
+  // GAS Web App URL（gas-setup.md の手順でデプロイ後に貼り付け）
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbzPym544KM3igumGKfvavM5j-YMY78jfUexaa8756DJz9CtFfROH_tVwk6d7zowcD2vfA/exec';
+
+  // トレーナーリスト（追加・削除はここに記入）
+  const TRAINERS = [
+    'クリス',
+    // 'トレーナー名をここに追加',
+    // 'トレーナー名をここに追加',
+  ];
+
+  // 営業時間帯（デモ表示にも使用）
+  const BUSINESS_HOURS = [
+    '10:00','11:00','12:00','13:00','14:00',
+    '15:00','16:00','17:00','18:00','19:00','20:00',
+  ];
+
+  // 定休日（0=日, 1=月, 2=火, 3=水, 4=木, 5=金, 6=土）
+  const CLOSED_DAYS = [0]; // 日曜定休
+
+  // ═══════════════════════════════════════════════
+
+  const DAY_JP = ['日','月','火','水','木','金','土'];
+  const DAY_EN = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  const state = {
+    history: [], weekOffset: 0,
+    slots: [], selectedSlot: null,
+  };
+
+  window.addEventListener('DOMContentLoaded', () => {
+    updateWeekLabel();
+    loadSlots();
+  });
+
+  // ── NAV ──
+  function goTo(id) {
+    const cur = document.querySelector('.screen.active');
+    if (cur) { cur.classList.remove('active'); state.history.push(cur.id); }
+    if (id === 'screen-confirm') fillConfirm();
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+    updateBackBtn();
+  }
+  function goBack() {
+    if (!state.history.length) return;
+    const prev = state.history.pop();
+    document.querySelector('.screen.active')?.classList.remove('active');
+    document.getElementById(prev).classList.add('active');
+    window.scrollTo(0, 0);
+    updateBackBtn();
+  }
+  function updateBackBtn() {
+    const cur = document.querySelector('.screen.active');
+    const hide = ['screen-slots','screen-complete'];
+    document.getElementById('backBtn').classList.toggle('hidden', !cur || hide.includes(cur.id));
+  }
+
+  // ── WEEK ──
+  function getWeekStart(offset) {
+    const d = new Date(); d.setHours(0,0,0,0);
+    d.setDate(d.getDate() - d.getDay() + offset * 7);
+    return d;
+  }
+  function updateWeekLabel() {
+    const s = getWeekStart(state.weekOffset);
+    const e = new Date(s); e.setDate(e.getDate() + 6);
+    const f = d => `${d.getMonth()+1}/${d.getDate()}`;
+    document.getElementById('weekLabel').textContent = `${f(s)} — ${f(e)}`;
+    document.getElementById('prevWeekBtn').disabled = state.weekOffset <= 0;
+  }
+  function changeWeek(dir) {
+    state.weekOffset = Math.max(0, state.weekOffset + dir);
+    state.selectedSlot = null;
+    document.getElementById('btnSlot').disabled = true;
+    updateWeekLabel();
+    loadSlots();
+  }
+
+  // ── LOAD ──
+  async function loadSlots() {
+    const container = document.getElementById('slotContainer');
+    container.innerHTML = '<div class="loading-state"><div class="spinner"></div><div class="loading-text">空き枠を取得中...</div></div>';
+    const ws = getWeekStart(state.weekOffset);
+    const we = new Date(ws); we.setDate(we.getDate() + 6);
+
+    if (!GAS_URL) {
+      document.getElementById('setupNotice').style.display = 'block';
+      setTimeout(() => renderSlots(getDemoSlots(ws)), 500);
+      return;
+    }
+    document.getElementById('setupNotice').style.display = 'none';
+    var callbackName = 'gasCallback_' + Date.now();
+    var script = document.createElement('script');
+    var timeoutId = setTimeout(function() {
+      container.innerHTML = '<div class="error-state">空き枠の取得に失敗しました。<br>接続を確認してください。</div>';
+      delete window[callbackName]; script.remove();
+    }, 10000);
+    window[callbackName] = function(data) {
+      clearTimeout(timeoutId); delete window[callbackName]; script.remove();
+      renderSlots((data && data.slots) || []);
+    };
+    script.src = GAS_URL + '?start=' + fmt(ws) + '&end=' + fmt(we) + '&callback=' + callbackName;
+    document.head.appendChild(script);
+  }
+
+  function fmt(d) {
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  // ── DEMO DATA ──
+  function getDemoSlots(weekStart) {
+    const slots = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(weekStart); d.setDate(d.getDate() + i);
+      if (CLOSED_DAYS.includes(d.getDay())) continue;
+      BUSINESS_HOURS.filter(() => Math.random() > 0.45).forEach(t => {
+        TRAINERS.forEach(trainer => {
+          if (Math.random() > 0.5) return; // トレーナーごとにランダムに枠を生成
+          slots.push({
+            date: fmt(d), time: t, trainer,
+            available: Math.random() > 0.3,
+          });
+        });
+      });
+    }
+    return slots;
+  }
+
+  // ── RENDER ──
+  function renderSlots(slots) {
+    state.slots = slots;
+    const container = document.getElementById('slotContainer');
+    if (!slots.length) {
+      container.innerHTML = '<div class="no-slots">この週の空き枠はありません。</div>';
+      return;
+    }
+    const byDate = {};
+    slots.forEach(s => { (byDate[s.date] = byDate[s.date] || []).push(s); });
+    container.innerHTML = '';
+    Object.keys(byDate).sort().forEach(dateStr => {
+      const d = new Date(dateStr + 'T00:00:00');
+      const dayEl = document.createElement('div');
+      dayEl.className = 'slot-day';
+      dayEl.innerHTML = `
+        <div class="slot-day-header">
+          <span>${DAY_EN[d.getDay()]}</span>
+          <span class="day-date">${d.getMonth()+1}月${d.getDate()}日（${DAY_JP[d.getDay()]}）</span>
+        </div>
+        <div class="slot-list" id="list-${dateStr}"></div>`;
+      container.appendChild(dayEl);
+      const listEl = dayEl.querySelector('.slot-list');
+      byDate[dateStr].forEach(slot => {
+        const el = document.createElement('div');
+        el.className = 'slot-item' + (slot.available ? '' : ' full');
+        el.innerHTML = `
+          <div>
+            <div class="slot-time">${slot.time}</div>
+            <div class="slot-trainer">${slot.trainer}</div>
+          </div>
+          <div class="slot-right">
+            <span class="slot-status ${slot.available ? 'open' : 'full'}">${slot.available ? '〇' : '✕'}</span>
+            ${slot.available ? '<div class="slot-check"></div>' : ''}
+          </div>`;
+        if (slot.available) el.addEventListener('click', () => selectSlot(el, slot));
+        listEl.appendChild(el);
+      });
+    });
+  }
+
+  function selectSlot(el, slot) {
+    document.querySelectorAll('.slot-item').forEach(i => i.classList.remove('selected'));
+    el.classList.add('selected');
+    state.selectedSlot = slot;
+    document.getElementById('btnSlot').disabled = false;
+  }
+
+  // ── FORM ──
+  function validateInfo() {
+    const n = document.getElementById('member-name').value.trim();
+    const p = document.getElementById('member-phone').value.trim();
+    document.getElementById('btnInfo').disabled = !(n && p);
+  }
+
+  function fillConfirm() {
+    const s = state.selectedSlot;
+    const d = new Date(s.date + 'T00:00:00');
+    document.getElementById('confirm-date').textContent    = `${d.getMonth()+1}月${d.getDate()}日（${DAY_JP[d.getDay()]}）`;
+    document.getElementById('confirm-time').textContent    = s.time;
+    document.getElementById('confirm-trainer').textContent = s.trainer;
+    document.getElementById('confirm-name').textContent    = document.getElementById('member-name').value.trim();
+    document.getElementById('confirm-phone').textContent   = document.getElementById('member-phone').value.trim();
+  }
+
+  async function submitBooking() {
+    const s     = state.selectedSlot;
+    const name  = document.getElementById('member-name').value.trim();
+    const phone = document.getElementById('member-phone').value.trim();
+    const note  = document.getElementById('member-note').value.trim();
+    if (GAS_URL) {
+      try {
+        await fetch(GAS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ date: s.date, time: s.time, trainer: s.trainer, name, phone, note }),
+        });
+      } catch {}
+    }
+    const d = new Date(s.date + 'T00:00:00');
+    document.getElementById('completeMessage').innerHTML =
+      `${d.getMonth()+1}月${d.getDate()}日（${DAY_JP[d.getDay()]}）<br>${s.time} のご予約を受け付けました。<br><br>またお会いしましょう。`;
+    document.querySelector('.screen.active')?.classList.remove('active');
+    state.history = [];
+    document.getElementById('screen-complete').classList.add('active');
+    window.scrollTo(0, 0);
+    updateBackBtn();
+  }
+</script>
+</body>
+</html>
