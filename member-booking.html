@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>REAL WORKOUT 元住吉店 — 会員予約</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black:   #0a0a0a;
+    --dark2:   #1a1a1a;
+    --dark3:   #222222;
+    --border:  #2e2e2e;
+    --border2: #3a3a3a;
+    --muted:   #aaaaaa;
+    --body:    #e8e4de;
+    --bright:  #f5f2ee;
+    --accent:  #c8a96e;
+    --accent2: #a88a52;
+    --green:   #5ec98a;
+    --red:     #e05444;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #0a0a0a; }
+  body {
+    color: var(--body);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 400;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* HEADER */
+  .site-header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 24px;
+    background: rgba(10,10,10,0.97);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(8px);
+  }
+  .back-btn {
+    color: var(--body); font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px; letter-spacing: 0.08em; cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    background: none; border: none; padding: 0; transition: color 0.2s; min-width: 48px;
+  }
+  .back-btn:hover { color: var(--bright); }
+  .back-btn.hidden { visibility: hidden; pointer-events: none; }
+  .site-name { text-align: center; flex: 1; }
+  .site-name-main { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 0.18em; color: var(--bright); display: block; text-transform: uppercase; }
+  .site-name-sub { font-size: 10px; font-weight: 400; letter-spacing: 0.12em; color: var(--muted); display: block; margin-top: 2px; }
+  .header-badge { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.15em; color: var(--black); background: var(--accent); padding: 4px 10px; border-radius: 2px; text-transform: uppercase; min-width: 48px; text-align: center; }
+
+  /* LAYOUT */
+  .main { padding-top: 72px; min-height: 100vh; display: flex; flex-direction: column; background: #0a0a0a; }
+  .screen { display: none; flex: 1; flex-direction: column; animation: fadeUp 0.3s ease both; background: #0a0a0a; }
+  .screen.active { display: flex; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .step-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.24em; color: var(--accent); text-transform: uppercase; padding: 28px 24px 0; }
+  .page-title { font-family: 'Barlow Condensed', sans-serif; font-size: 28px; font-weight: 700; letter-spacing: 0.06em; color: var(--bright); padding: 6px 24px 0; text-transform: uppercase; }
+  .content { padding: 20px 24px 100px; flex: 1; }
+
+  /* VIEW TABS */
+  .view-tabs {
+    display: flex; gap: 6px; margin-bottom: 16px;
+  }
+  .view-tab {
+    flex: 1; padding: 8px 4px; text-align: center;
+    font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 600;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    background: var(--dark2); border: 1px solid var(--border2); border-radius: 4px;
+    color: var(--muted); cursor: pointer; transition: all 0.2s;
+  }
+  .view-tab.active { background: var(--accent); border-color: var(--accent); color: var(--black); }
+
+  /* NAV BAR */
+  .date-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .date-nav-label { font-family: 'Barlow Condensed', sans-serif; font-size: 17px; font-weight: 600; letter-spacing: 0.08em; color: var(--bright); text-align: center; flex: 1; }
+  .nav-btn {
+    background: var(--dark2); border: 1px solid var(--border2); border-radius: 4px;
+    color: var(--body); width: 40px; height: 40px; cursor: pointer; font-size: 20px;
+    display: flex; align-items: center; justify-content: center; transition: border-color 0.2s, color 0.2s; flex-shrink: 0;
+  }
+  .nav-btn:hover { border-color: var(--accent); color: var(--bright); }
+  .nav-btn:disabled { opacity: 0.25; cursor: default; }
+
+  /* MONTH GRID */
+  .month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; margin-bottom: 16px; }
+  .month-dow { text-align: center; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; color: var(--muted); padding: 4px 0; }
+  .month-cell {
+    aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    border-radius: 4px; cursor: pointer; border: 1px solid transparent; transition: all 0.15s; position: relative;
+  }
+  .month-cell:hover:not(.empty):not(.past):not(.closed) { border-color: var(--border2); background: var(--dark2); }
+  .month-cell.today { border-color: var(--accent); }
+  .month-cell.selected { background: var(--accent); }
+  .month-cell.empty, .month-cell.past, .month-cell.closed { cursor: default; }
+  .month-cell.closed { opacity: 0.25; }
+  .month-num { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 600; color: var(--bright); line-height: 1; }
+  .month-cell.today .month-num { color: var(--accent); }
+  .month-cell.selected .month-num { color: var(--black); }
+  .month-cell.past .month-num { color: var(--border2); }
+  .month-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--green); margin-top: 2px; }
+  .month-cell.selected .month-dot { background: var(--black); }
+
+  /* LOADING */
+  .loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 24px; gap: 16px; }
+  .spinner { width: 32px; height: 32px; border: 2px solid var(--border2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 13px; font-weight: 400; color: var(--body); letter-spacing: 0.08em; }
+
+  /* ERROR */
+  .error-state { background: rgba(224,84,68,0.1); border: 1px solid rgba(224,84,68,0.35); border-radius: 4px; padding: 16px 18px; margin-bottom: 20px; font-size: 13px; color: #f09080; line-height: 1.8; }
+
+  /* SLOT LIST */
+  .slot-day { margin-bottom: 20px; }
+  .slot-day-header {
+    font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.18em; color: var(--accent); text-transform: uppercase;
+    padding: 8px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 10px;
+    display: flex; align-items: baseline; gap: 10px;
+  }
+  .day-date { font-family: 'Noto Sans JP', sans-serif; font-size: 14px; font-weight: 500; color: var(--bright); letter-spacing: 0.04em; text-transform: none; }
+  .slot-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .slot-item {
+    background: var(--dark2); border: 1px solid var(--border2); border-radius: 4px;
+    padding: 14px 16px; display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer; transition: border-color 0.2s, background 0.2s;
+  }
+  .slot-item:hover:not(.full) { border-color: var(--accent); background: var(--dark3); }
+  .slot-item.selected { border-color: var(--accent); background: var(--dark3); }
+  .slot-item.full { opacity: 0.45; cursor: default; pointer-events: none; }
+
+  .slot-time { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: 0.06em; color: var(--bright); }
+  .slot-trainer { font-size: 12px; font-weight: 500; color: var(--body); letter-spacing: 0.05em; margin-top: 3px; }
+
+  .slot-right { display: flex; align-items: center; gap: 10px; }
+  .slot-status { font-size: 24px; font-weight: 700; line-height: 1; }
+  .slot-status.open { color: var(--green); }
+  .slot-status.full { color: var(--muted); }
+
+  .slot-check {
+    width: 20px; height: 20px; border: 1px solid var(--border2); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s, border-color 0.2s; flex-shrink: 0;
+  }
+  .slot-item.selected .slot-check { background: var(--accent); border-color: var(--accent); }
+  .slot-item.selected .slot-check::after { content: ''; width: 6px; height: 6px; background: var(--black); border-radius: 50%; }
+
+  .no-slots { font-size: 13px; font-weight: 400; color: var(--muted); letter-spacing: 0.05em; padding: 12px 0; text-align: center; }
+  .closed-notice { font-size: 13px; color: var(--muted); text-align: center; padding: 24px 0; }
+
+  /* FORM */
+  .form-group { margin-bottom: 20px; }
+  .form-label { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.22em; color: var(--accent); text-transform: uppercase; display: block; margin-bottom: 8px; }
+  .form-input { width: 100%; background: var(--dark2); border: 1px solid var(--border2); border-radius: 4px; padding: 14px 16px; color: var(--bright); font-family: 'Noto Sans JP', sans-serif; font-size: 14px; font-weight: 400; outline: none; transition: border-color 0.2s; appearance: none; }
+  .form-input:focus { border-color: var(--accent); }
+  .form-input::placeholder { color: var(--muted); }
+  textarea.form-input { resize: vertical; min-height: 80px; line-height: 1.7; }
+
+  /* CONFIRM */
+  .confirm-rows { background: var(--dark2); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 20px; }
+  .confirm-row { display: flex; align-items: flex-start; border-bottom: 1px solid var(--border); padding: 14px 18px; }
+  .confirm-row:last-child { border-bottom: none; }
+  .confirm-row-key { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.18em; color: var(--accent); text-transform: uppercase; width: 72px; flex-shrink: 0; padding-top: 2px; }
+  .confirm-row-val { font-size: 14px; font-weight: 500; color: var(--bright); letter-spacing: 0.04em; line-height: 1.6; }
+  .confirm-note { font-size: 12px; font-weight: 400; color: var(--muted); letter-spacing: 0.04em; line-height: 1.9; text-align: center; margin-bottom: 24px; }
+
+  /* FOOTER */
+  .footer-bar { position: fixed; bottom: 0; left: 0; right: 0; padding: 14px 24px 24px; background: linear-gradient(to top, var(--black) 65%, transparent); z-index: 50; }
+  .btn-next { width: 100%; background: var(--accent); color: var(--black); border: none; border-radius: 4px; padding: 17px; font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; cursor: pointer; transition: background 0.2s, opacity 0.2s; }
+  .btn-next:hover { background: var(--accent2); }
+  .btn-next:disabled { opacity: 0.25; cursor: default; }
+  .btn-confirm { width: 100%; background: transparent; color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; padding: 17px; font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; cursor: pointer; transition: background 0.2s, color 0.2s; display: block; text-align: center; }
+  .btn-confirm:hover { background: var(--accent); color: var(--black); }
+
+  /* COMPLETE */
+  #screen-complete { justify-content: center; align-items: center; text-align: center; padding: 48px 32px; }
+  .complete-icon { width: 64px; height: 64px; border: 1px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 28px; }
+  .complete-check { font-size: 28px; color: var(--accent); }
+  .complete-title { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 0.12em; color: var(--bright); text-transform: uppercase; margin-bottom: 20px; }
+  .complete-message { font-size: 14px; font-weight: 400; color: var(--body); letter-spacing: 0.05em; line-height: 2.4; }
+  .complete-brand { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.22em; color: var(--muted); text-transform: uppercase; margin-top: 40px; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <button class="back-btn hidden" id="backBtn" onclick="goBack()">&#8592;</button>
+  <div class="site-name">
+    <span class="site-name-main">Real Workout</span>
+    <span class="site-name-sub">元住吉店</span>
+  </div>
+  <div class="header-badge">Member</div>
+</header>
+
+<main class="main">
+
+  <!-- Step 01: 空き枠選択 -->
+  <div class="screen active" id="screen-slots">
+    <div class="step-label">Step 01 — Available Slots</div>
+    <div class="page-title">空き枠を選ぶ</div>
+    <div class="content">
+
+      <!-- ビュー切り替えタブ -->
+      <div class="view-tabs">
+        <div class="view-tab active" id="tab-day" onclick="switchView('day')">日</div>
+        <div class="view-tab" id="tab-week" onclick="switchView('week')">週</div>
+        <div class="view-tab" id="tab-month" onclick="switchView('month')">月</div>
+      </div>
+
+      <!-- ナビゲーション -->
+      <div class="date-nav">
+        <button class="nav-btn" id="prevBtn" onclick="navigate(-1)">‹</button>
+        <div class="date-nav-label" id="navLabel">—</div>
+        <button class="nav-btn" onclick="navigate(1)">›</button>
+      </div>
+
+      <!-- 月ビュー用カレンダーグリッド -->
+      <div id="monthGrid" style="display:none;">
+        <div class="month-grid" id="monthGridInner"></div>
+      </div>
+
+      <!-- スロット表示エリア -->
+      <div id="slotContainer">
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <div class="loading-text">空き枠を取得中...</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bar">
+      <button class="btn-next" id="btnSlot" onclick="goTo('screen-info')" disabled>次 へ</button>
+    </div>
+  </div>
+
+  <!-- Step 02: お客様情報 -->
+  <div class="screen" id="screen-info">
+    <div class="step-label">Step 02 — Info</div>
+    <div class="page-title">お客様情報</div>
+    <div class="content">
+      <div class="form-group">
+        <label class="form-label">Name — お名前</label>
+        <input class="form-input" type="text" id="member-name" placeholder="山田 太郎" oninput="validateInfo()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone — 電話番号</label>
+        <input class="form-input" type="tel" id="member-phone" placeholder="090-0000-0000" oninput="validateInfo()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email — メールアドレス</label>
+        <input class="form-input" type="email" id="member-email" placeholder="example@email.com" oninput="validateInfo()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Note — ご要望（任意）</label>
+        <textarea class="form-input" id="member-note" placeholder="体調・ご要望など"></textarea>
+      </div>
+    </div>
+    <div class="footer-bar">
+      <button class="btn-next" id="btnInfo" onclick="goTo('screen-confirm')" disabled>次 へ</button>
+    </div>
+  </div>
+
+  <!-- Step 03: 確認 -->
+  <div class="screen" id="screen-confirm">
+    <div class="step-label">Step 03 — Confirm</div>
+    <div class="page-title">ご確認</div>
+    <div class="content">
+      <div class="confirm-rows">
+        <div class="confirm-row">
+          <div class="confirm-row-key">Date</div>
+          <div class="confirm-row-val" id="confirm-date">—</div>
+        </div>
+        <div class="confirm-row">
+          <div class="confirm-row-key">Time</div>
+          <div class="confirm-row-val" id="confirm-time">—</div>
+        </div>
+        <div class="confirm-row">
+          <div class="confirm-row-key">Trainer</div>
+          <div class="confirm-row-val" id="confirm-trainer">—</div>
+        </div>
+        <div class="confirm-row">
+          <div class="confirm-row-key">Name</div>
+          <div class="confirm-row-val" id="confirm-name">—</div>
+        </div>
+        <div class="confirm-row">
+          <div class="confirm-row-key">Phone</div>
+          <div class="confirm-row-val" id="confirm-phone">—</div>
+        </div>
+        <div class="confirm-row">
+          <div class="confirm-row-key">Email</div>
+          <div class="confirm-row-val" id="confirm-email">—</div>
+        </div>
+      </div>
+      <p class="confirm-note">
+        予約確定後、担当トレーナーよりご確認の連絡をいたします。<br>
+        キャンセルは前日21時までにご連絡ください。
+      </p>
+      <button class="btn-confirm" onclick="submitBooking()">予 約 を 確 定 す る</button>
+    </div>
+  </div>
+
+  <!-- Complete -->
+  <div class="screen" id="screen-complete">
+    <div class="complete-icon"><span class="complete-check">✓</span></div>
+    <div class="complete-title">予約を受け付けました</div>
+    <div class="complete-message" id="completeMessage">
+      担当トレーナーより<br>ご連絡いたします。<br><br>またお会いしましょう。
+    </div>
+    <div class="complete-brand">Real Workout 元住吉店</div>
+  </div>
+
+</main>
+
+<script>
+  // ═══════════════════════════════════════════════
+  // 設定エリア
+  // ═══════════════════════════════════════════════
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbzPym544KM3igumGKfvavM5j-YMY78jfUexaa8756DJz9CtFfROH_tVwk6d7zowcD2vfA/exec';
+
+  const TRAINERS = [
+    'クリス',
+    // 'トレーナー名をここに追加',
+  ];
+
+  const CLOSED_DAYS = [2, 0]; // 火曜・日曜定休
+  // ═══════════════════════════════════════════════
+
+  const DAY_JP = ['日','月','火','水','木','金','土'];
+  const DAY_EN = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const MONTH_JP = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+
+  const state = {
+    history: [],
+    view: 'day',       // 'day' | 'week' | 'month'
+    offset: 0,         // day: 日数, week: 週数, month: 月数
+    allSlots: [],      // 取得した全スロット
+    selectedSlot: null,
+    selectedMonthDate: null, // 月ビューで選択した日付
+  };
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  window.addEventListener('DOMContentLoaded', () => {
+    refresh();
+  });
+
+  // ── ビュー切り替え ──
+  function switchView(v) {
+    state.view = v;
+    state.offset = 0;
+    state.selectedSlot = null;
+    state.selectedMonthDate = null;
+    document.getElementById('btnSlot').disabled = true;
+    ['day','week','month'].forEach(t => {
+      document.getElementById('tab-' + t).classList.toggle('active', t === v);
+    });
+    document.getElementById('monthGrid').style.display = v === 'month' ? 'block' : 'none';
+    refresh();
+  }
+
+  // ── ナビゲーション ──
+  function navigate(dir) {
+    state.offset += dir;
+    if (state.offset < 0) state.offset = 0;
+    state.selectedSlot = null;
+    document.getElementById('btnSlot').disabled = true;
+    refresh();
+  }
+
+  // ── 日付範囲取得 ──
+  function getRange() {
+    const d = new Date(today);
+    if (state.view === 'day') {
+      d.setDate(d.getDate() + state.offset);
+      return { start: d, end: d };
+    } else if (state.view === 'week') {
+      const ws = new Date(today);
+      ws.setDate(ws.getDate() - ws.getDay() + state.offset * 7);
+      const we = new Date(ws); we.setDate(we.getDate() + 6);
+      return { start: ws, end: we };
+    } else {
+      const ms = new Date(today.getFullYear(), today.getMonth() + state.offset, 1);
+      const me = new Date(ms.getFullYear(), ms.getMonth() + 1, 0);
+      return { start: ms, end: me };
+    }
+  }
+
+  // ── ラベル更新 ──
+  function updateLabel() {
+    const { start, end } = getRange();
+    const f = d => `${d.getMonth()+1}/${d.getDate()}`;
+    let label = '';
+    if (state.view === 'day') {
+      label = `${start.getMonth()+1}月${start.getDate()}日（${DAY_JP[start.getDay()]}）`;
+    } else if (state.view === 'week') {
+      label = `${f(start)} — ${f(end)}`;
+    } else {
+      label = `${start.getFullYear()}年 ${MONTH_JP[start.getMonth()]}`;
+    }
+    document.getElementById('navLabel').textContent = label;
+    document.getElementById('prevBtn').disabled = state.offset <= 0;
+  }
+
+  // ── 全体リフレッシュ ──
+  function refresh() {
+    updateLabel();
+    const { start, end } = getRange();
+    fetchSlots(start, end);
+  }
+
+  // ── スロット取得 ──
+  function fetchSlots(start, end) {
+    const container = document.getElementById('slotContainer');
+    container.innerHTML = '<div class="loading-state"><div class="spinner"></div><div class="loading-text">空き枠を取得中...</div></div>';
+
+    if (!GAS_URL) {
+      setTimeout(() => {
+        state.allSlots = getDemoSlots(start, end);
+        renderView();
+      }, 500);
+      return;
+    }
+
+    var callbackName = 'gasCallback_' + Date.now();
+    var script = document.createElement('script');
+    var timeoutId = setTimeout(function() {
+      container.innerHTML = '<div class="error-state">空き枠の取得に失敗しました。<br>接続を確認してください。</div>';
+      delete window[callbackName]; script.remove();
+    }, 10000);
+    window[callbackName] = function(data) {
+      clearTimeout(timeoutId); delete window[callbackName]; script.remove();
+      state.allSlots = (data && data.slots) || [];
+      renderView();
+    };
+    script.src = GAS_URL + '?start=' + fmt(start) + '&end=' + fmt(end) + '&callback=' + callbackName;
+    document.head.appendChild(script);
+  }
+
+  // ── ビューレンダリング ──
+  function renderView() {
+    if (state.view === 'day') renderDayView();
+    else if (state.view === 'week') renderWeekView();
+    else renderMonthView();
+  }
+
+  // ── 日ビュー ──
+  function renderDayView() {
+    const { start } = getRange();
+    const dateStr = fmt(start);
+    const isClosed = CLOSED_DAYS.includes(start.getDay());
+    const container = document.getElementById('slotContainer');
+
+    if (isClosed) {
+      container.innerHTML = '<div class="closed-notice">本日は定休日です。</div>';
+      return;
+    }
+
+    const slots = state.allSlots.filter(s => s.date === dateStr);
+    if (!slots.length) {
+      container.innerHTML = '<div class="no-slots">この日の空き枠はありません。</div>';
+      return;
+    }
+
+    container.innerHTML = '';
+    const listEl = document.createElement('div');
+    listEl.className = 'slot-list';
+    slots.forEach(slot => {
+      const el = createSlotEl(slot);
+      listEl.appendChild(el);
+    });
+    container.appendChild(listEl);
+  }
+
+  // ── 週ビュー ──
+  function renderWeekView() {
+    const container = document.getElementById('slotContainer');
+    const { start } = getRange();
+
+    const byDate = {};
+    state.allSlots.forEach(s => { (byDate[s.date] = byDate[s.date] || []).push(s); });
+
+    if (!Object.keys(byDate).length) {
+      container.innerHTML = '<div class="no-slots">この週の空き枠はありません。</div>';
+      return;
+    }
+
+    container.innerHTML = '';
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(start); d.setDate(d.getDate() + i);
+      const dateStr = fmt(d);
+      const slots = byDate[dateStr] || [];
+      const isClosed = CLOSED_DAYS.includes(d.getDay());
+
+      if (isClosed || !slots.length) continue;
+
+      const dayEl = document.createElement('div');
+      dayEl.className = 'slot-day';
+      dayEl.innerHTML = `<div class="slot-day-header"><span>${DAY_EN[d.getDay()]}</span><span class="day-date">${d.getMonth()+1}月${d.getDate()}日（${DAY_JP[d.getDay()]}）</span></div><div class="slot-list" id="list-${dateStr}"></div>`;
+      container.appendChild(dayEl);
+      const listEl = dayEl.querySelector('.slot-list');
+      slots.forEach(slot => listEl.appendChild(createSlotEl(slot)));
+    }
+
+    if (!container.children.length) {
+      container.innerHTML = '<div class="no-slots">この週の空き枠はありません。</div>';
+    }
+  }
+
+  // ── 月ビュー ──
+  function renderMonthView() {
+    const { start } = getRange();
+    const year = start.getFullYear();
+    const month = start.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const firstDow = new Date(year, month, 1).getDay();
+
+    // 空き枠がある日をセット化
+    const availDates = new Set();
+    state.allSlots.forEach(s => { if (s.available) availDates.add(s.date); });
+
+    const grid = document.getElementById('monthGridInner');
+    grid.innerHTML = '';
+
+    // 曜日ヘッダー
+    DAY_JP.forEach(d => {
+      const el = document.createElement('div');
+      el.className = 'month-dow';
+      el.textContent = d;
+      grid.appendChild(el);
+    });
+
+    // 空白
+    for (let i = 0; i < firstDow; i++) {
+      const el = document.createElement('div'); el.className = 'month-cell empty'; grid.appendChild(el);
+    }
+
+    // 日付セル
+    for (let d = 1; d <= daysInMonth; d++) {
+      const date = new Date(year, month, d);
+      const dateStr = fmt(date);
+      const isPast = date < today;
+      const isClosed = CLOSED_DAYS.includes(date.getDay());
+      const isToday = date.getTime() === today.getTime();
+      const hasSlots = availDates.has(dateStr);
+      const isSelected = state.selectedMonthDate === dateStr;
+
+      const el = document.createElement('div');
+      el.className = 'month-cell';
+      if (isPast) el.classList.add('past');
+      else if (isClosed) el.classList.add('closed');
+      else if (isToday) el.classList.add('today');
+      if (isSelected) el.classList.add('selected');
+
+      el.innerHTML = `<span class="month-num">${d}</span>${hasSlots && !isPast && !isClosed ? '<span class="month-dot"></span>' : ''}`;
+
+      if (!isPast && !isClosed) {
+        el.addEventListener('click', () => selectMonthDate(dateStr));
+      }
+      grid.appendChild(el);
+    }
+
+    // 選択日のスロット表示
+    const container = document.getElementById('slotContainer');
+    if (state.selectedMonthDate) {
+      renderDaySlots(state.selectedMonthDate, container);
+    } else {
+      container.innerHTML = '<div class="no-slots">日付を選択してください。</div>';
+    }
+  }
+
+  function selectMonthDate(dateStr) {
+    state.selectedMonthDate = dateStr;
+    state.selectedSlot = null;
+    document.getElementById('btnSlot').disabled = true;
+
+    // グリッドの選択状態更新
+    document.querySelectorAll('.month-cell').forEach(el => el.classList.remove('selected'));
+    const cells = document.querySelectorAll('.month-cell');
+    const { start } = getRange();
+    const day = parseInt(dateStr.split('-')[2]);
+    const firstDow = new Date(start.getFullYear(), start.getMonth(), 1).getDay();
+    const idx = firstDow + day - 1;
+    // dow headers = 7, then cells
+    const allCells = document.querySelectorAll('#monthGridInner .month-cell');
+    if (allCells[idx - firstDow]) allCells[idx - firstDow].classList.add('selected');
+
+    renderDaySlots(dateStr, document.getElementById('slotContainer'));
+  }
+
+  function renderDaySlots(dateStr, container) {
+    const slots = state.allSlots.filter(s => s.date === dateStr);
+    if (!slots.length) {
+      container.innerHTML = '<div class="no-slots">この日の空き枠はありません。</div>';
+      return;
+    }
+    container.innerHTML = '';
+    const d = new Date(dateStr + 'T00:00:00');
+    const header = document.createElement('div');
+    header.className = 'slot-day-header';
+    header.innerHTML = `<span>${DAY_EN[d.getDay()]}</span><span class="day-date">${d.getMonth()+1}月${d.getDate()}日（${DAY_JP[d.getDay()]}）</span>`;
+    container.appendChild(header);
+    const listEl = document.createElement('div');
+    listEl.className = 'slot-list';
+    slots.forEach(slot => listEl.appendChild(createSlotEl(slot)));
+    container.appendChild(listEl);
+  }
+
+  // ── スロット要素作成 ──
+  function createSlotEl(slot) {
+    const el = document.createElement('div');
+    el.className = 'slot-item' + (slot.available ? '' : ' full');
+    el.innerHTML = `
+      <div>
+        <div class="slot-time">${slot.time}</div>
+        <div class="slot-trainer">${slot.trainer}</div>
+      </div>
+      <div class="slot-right">
+        <span class="slot-status ${slot.available ? 'open' : 'full'}">${slot.available ? '〇' : '✕'}</span>
+        ${slot.available ? '<div class="slot-check"></div>' : ''}
+      </div>`;
+    if (slot.available) el.addEventListener('click', () => selectSlot(el, slot));
+    return el;
+  }
+
+  function selectSlot(el, slot) {
+    document.querySelectorAll('.slot-item').forEach(i => i.classList.remove('selected'));
+    el.classList.add('selected');
+    state.selectedSlot = slot;
+    document.getElementById('btnSlot').disabled = false;
+  }
+
+  // ── デモデータ ──
+  function getDemoSlots(start, end) {
+    const slots = [];
+    const times = ['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00'];
+    const cur = new Date(start);
+    while (cur <= end) {
+      if (!CLOSED_DAYS.includes(cur.getDay())) {
+        times.filter(() => Math.random() > 0.4).forEach(t => {
+          slots.push({ date: fmt(cur), time: t, trainer: 'クリス', available: Math.random() > 0.3 });
+        });
+      }
+      cur.setDate(cur.getDate() + 1);
+    }
+    return slots;
+  }
+
+  function fmt(d) {
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  // ── NAVIGATION ──
+  function goTo(id) {
+    const cur = document.querySelector('.screen.active');
+    if (cur) { cur.classList.remove('active'); state.history.push(cur.id); }
+    if (id === 'screen-confirm') fillConfirm();
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+    updateBackBtn();
+  }
+  function goBack() {
+    if (!state.history.length) return;
+    document.querySelector('.screen.active')?.classList.remove('active');
+    document.getElementById(state.history.pop()).classList.add('active');
+    window.scrollTo(0, 0);
+    updateBackBtn();
+  }
+  function updateBackBtn() {
+    const cur = document.querySelector('.screen.active');
+    const hide = ['screen-slots','screen-complete'];
+    document.getElementById('backBtn').classList.toggle('hidden', !cur || hide.includes(cur.id));
+  }
+
+  // ── FORM ──
+  function validateInfo() {
+    const n = document.getElementById('member-name').value.trim();
+    const p = document.getElementById('member-phone').value.trim();
+    const e = document.getElementById('member-email').value.trim();
+    document.getElementById('btnInfo').disabled = !(n && p && e);
+  }
+
+  function fillConfirm() {
+    const s = state.selectedSlot;
+    const d = new Date(s.date + 'T00:00:00');
+    document.getElementById('confirm-date').textContent    = `${d.getMonth()+1}月${d.getDate()}日（${DAY_JP[d.getDay()]}）`;
+    document.getElementById('confirm-time').textContent    = s.time;
+    document.getElementById('confirm-trainer').textContent = s.trainer;
+    document.getElementById('confirm-name').textContent    = document.getElementById('member-name').value.trim();
+    document.getElementById('confirm-phone').textContent   = document.getElementById('member-phone').value.trim();
+    document.getElementById('confirm-email').textContent   = document.getElementById('member-email').value.trim();
+  }
+
+  async function submitBooking() {
+    const s     = state.selectedSlot;
+    const name  = document.getElementById('member-name').value.trim();
+    const phone = document.getElementById('member-phone').value.trim();
+    const email = document.getElementById('member-email').value.trim();
+    const note  = document.getElementById('member-note').value.trim();
+
+    await new Promise((resolve) => {
+      if (!GAS_URL) { resolve(); return; }
+      const callbackName = 'bookingCallback_' + Date.now();
+      const script = document.createElement('script');
+      const timeoutId = setTimeout(() => {
+        delete window[callbackName]; script.remove(); resolve();
+      }, 10000);
+      window[callbackName] = function() {
+        clearTimeout(timeoutId); delete window[callbackName]; script.remove(); resolve();
+      };
+      const params = new URLSearchParams({
+        action: 'book',
+        date: s.date,
+        time: s.time,
+        trainer: s.trainer,
+        name,
+        phone,
+        email,
+        note: note || '',
+        callback: callbackName
+      });
+      script.src = GAS_URL + '?' + params.toString();
+      document.head.appendChild(script);
+    });
+
+    const d = new Date(s.date + 'T00:00:00');
+    document.getElementById('completeMessage').innerHTML =
+      `${d.getMonth()+1}月${d.getDate()}日（${DAY_JP[d.getDay()]}）<br>${s.time} のご予約を受け付けました。<br><br>またお会いしましょう。`;
+    document.querySelector('.screen.active')?.classList.remove('active');
+    state.history = [];
+    document.getElementById('screen-complete').classList.add('active');
+    window.scrollTo(0, 0);
+    updateBackBtn();
+  }
+</script>
+</body>
+</html>
