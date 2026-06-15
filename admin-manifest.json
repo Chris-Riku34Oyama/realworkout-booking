@@ -1,0 +1,22 @@
+{
+  "name": "REAL WORKOUT 元住吉店 管理画面",
+  "short_name": "RW管理",
+  "description": "リアルワークアウト元住吉店のスタッフ管理アプリ",
+  "start_url": "/realworkout-booking/admin.html",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#e05444",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
