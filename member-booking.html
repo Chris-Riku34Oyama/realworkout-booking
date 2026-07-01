@@ -238,7 +238,7 @@
       </div>
     </div>
     <div class="footer-bar">
-      <button class="btn-next" id="btnSlot" onclick="goTo('screen-info')" disabled>次 へ</button>
+      <button class="btn-next" id="btnSlot" onclick="goToInfoOrConfirm()" disabled>次 へ</button>
     </div>
   </div>
 
@@ -711,6 +711,18 @@
     document.getElementById('confirm-name').textContent    = document.getElementById('member-name').value.trim();
     document.getElementById('confirm-phone').textContent   = document.getElementById('member-phone').value.trim();
   }
+  
+function goToInfoOrConfirm() {
+  const savedName = localStorage.getItem('rw_name');
+  const savedPhone = localStorage.getItem('rw_phone');
+  const savedEmail = localStorage.getItem('rw_email');
+  if (savedName && savedPhone && savedEmail) {
+    fillConfirm();
+    goTo('screen-confirm');
+  } else {
+    goTo('screen-info');
+  }
+}
 
   async function submitBooking() {
     const s     = state.selectedSlot;
