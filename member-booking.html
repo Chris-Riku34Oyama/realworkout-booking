@@ -723,6 +723,7 @@
       try {
         await fetch(GAS_URL, {
           method: 'POST',
+          mode: 'no-cors',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ date: s.date, time: s.time, trainer: s.trainer, name, phone, email, note }),
         });
