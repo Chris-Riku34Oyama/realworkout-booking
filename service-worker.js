@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rw-booking-v1';
+const CACHE_NAME = 'rw-booking-v2';
 const urlsToCache = [
   '/realworkout-booking/member-booking.html',
 ];
