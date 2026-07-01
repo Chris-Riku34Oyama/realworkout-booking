@@ -717,6 +717,9 @@ function goToInfoOrConfirm() {
   const savedPhone = localStorage.getItem('rw_phone');
   const savedEmail = localStorage.getItem('rw_email');
   if (savedName && savedPhone && savedEmail) {
+    document.getElementById('member-name').value = savedName;
+    document.getElementById('member-phone').value = savedPhone;
+    document.getElementById('member-email').value = savedEmail;
     fillConfirm();
     goTo('screen-confirm');
   } else {
