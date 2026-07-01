@@ -718,12 +718,13 @@
     const name  = document.getElementById('member-name').value.trim();
     const phone = document.getElementById('member-phone').value.trim();
     const note  = document.getElementById('member-note').value.trim();
+    const email = document.getElementById('member-email').value.trim();
     if (GAS_URL) {
       try {
         await fetch(GAS_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ date: s.date, time: s.time, trainer: s.trainer, name, phone, note }),
+          body: JSON.stringify({ date: s.date, time: s.time, trainer: s.trainer, name, phone, email, note }),
         });
       } catch {}
     }
