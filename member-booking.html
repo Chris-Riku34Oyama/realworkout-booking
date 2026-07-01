@@ -256,6 +256,10 @@
         <input class="form-input" type="tel" id="member-phone" placeholder="090-0000-0000" oninput="validateInfo()">
       </div>
       <div class="form-group">
+        <label class="form-label">Email — メールアドレス</label>
+        <input class="form-input" type="email" id="member-email" placeholder="example@email.com" oninput="validateInfo()">
+      </div>
+      <div class="form-group">
         <label class="form-label">Note — ご要望（任意）</label>
         <textarea class="form-input" id="member-note" placeholder="体調・ご要望など"></textarea>
       </div>
@@ -688,10 +692,15 @@
   }
 
   // ── FORM ──
-  function validateInfo() {
+    function validateInfo() {
     const n = document.getElementById('member-name').value.trim();
     const p = document.getElementById('member-phone').value.trim();
-    document.getElementById('btnInfo').disabled = !(n && p);
+    const e = document.getElementById('member-email').value.trim();
+    // 自動保存
+    if(n) localStorage.setItem('rw_name', n);
+    if(p) localStorage.setItem('rw_phone', p);
+    if(e) localStorage.setItem('rw_email', e);
+    document.getElementById('btnInfo').disabled = !(n && p && e);
   }
 
   function fillConfirm() {
