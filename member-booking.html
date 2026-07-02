@@ -352,6 +352,7 @@
     view: 'day',       // 'day' | 'week' | 'month'
     offset: 0,         // day: 日数, week: 週数, month: 月数
     allSlots: [],      // 取得した全スロット
+    closedDates: [],  // GASから取得した定休日リスト
     selectedSlot: null,
     selectedMonthDate: null, // 月ビューで選択した日付
   };
@@ -449,6 +450,7 @@
     window[callbackName] = function(data) {
       clearTimeout(timeoutId); delete window[callbackName]; script.remove();
       state.allSlots = (data && data.slots) || [];
+      state.closedDates = (data && data.closedDates) || [];
       renderView();
     };
     script.src = GAS_URL + '?start=' + fmt(start) + '&end=' + fmt(end) + '&callback=' + callbackName;
@@ -466,7 +468,7 @@
   function renderDayView() {
     const { start } = getRange();
     const dateStr = fmt(start);
-    const isClosed = CLOSED_DAYS.includes(start.getDay());
+    const isClosed = state.closedDates.includes(dateStr);
     const container = document.getElementById('slotContainer');
 
     if (isClosed) {
@@ -508,7 +510,7 @@
       const d = new Date(start); d.setDate(d.getDate() + i);
       const dateStr = fmt(d);
       const slots = byDate[dateStr] || [];
-      const isClosed = CLOSED_DAYS.includes(d.getDay());
+      const isClosed = state.closedDates.includes(dateStr);
 
       if (isClosed || !slots.length) continue;
 
@@ -558,7 +560,7 @@
       const date = new Date(year, month, d);
       const dateStr = fmt(date);
       const isPast = date < today;
-      const isClosed = CLOSED_DAYS.includes(date.getDay());
+      const isClosed = state.closedDates.includes(dateStr);
       const isToday = date.getTime() === today.getTime();
       const hasSlots = availDates.has(dateStr);
       const isSelected = state.selectedMonthDate === dateStr;
